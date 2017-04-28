@@ -774,6 +774,9 @@ export class WebsqlQueryRunner implements QueryRunner {
         const columnDefinitions = tableSchema.columns.map(dbColumn => this.buildCreateColumnSql(dbColumn)).join(", ");
         const columnNames = tableSchema.columns.map(column => `"${column.name}"`).join(", ");
 
+        let sql0 = `DROP TABLE IF EXISTS "temporary_${tableSchema.name}"`;         
+        await this.query(sql0);
+
         let sql1 = `CREATE TABLE "temporary_${tableSchema.name}" (${columnDefinitions}`;
         // if (options && options.createForeignKeys) {
         tableSchema.foreignKeys.forEach(foreignKey => {

@@ -4,7 +4,6 @@ import { IColumnSchema } from './models/column-schema.interface';
 import { IIndexSchema } from './models/index-schema.interface';
 import { IForeignKeySchema } from './models/foreign-key-schema.interface';
 import { IPrimaryKeySchema } from './models/primary-key-schema.interface';
-import { ObjectLiteral } from '../../build/package/common/ObjectLiteral';
 import { ColumnSchema } from '../schema-builder/schema/ColumnSchema';
 import { ForeignKeySchema } from '../schema-builder/schema/ForeignKeySchema';
 import { IndexSchema } from '../schema-builder/schema/IndexSchema';
@@ -131,11 +130,11 @@ export class InfoStorage {
       })
     };
 
-    localStorage.set(`${STORAGE_SUFFIX}.table:${schema.name}`, tableSchemaData);
+    localStorage.setItem(`${STORAGE_SUFFIX}.table:${schema.name}`, JSON.stringify(tableSchemaData));
   }
 
   public static get(tableName: string) {
-    let data: ITableSchema = JSON.parse(localStorage.get(`${STORAGE_SUFFIX}.table:${tableName}`));
+    let data: ITableSchema = JSON.parse(localStorage.getItem(`${STORAGE_SUFFIX}.table:${tableName}`));
     let tableSchema: TableSchema = new TableSchema(tableName, [], false);
 
     let columns = data.columns.map((d) => new ColumnSchema(d));

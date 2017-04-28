@@ -15,7 +15,6 @@ import {OrmUtils} from "../util/OrmUtils";
 import {CannotDetermineConnectionOptionsError} from "./error/CannotDetermineConnectionOptionsError";
 import {PlatformTools} from "../platform/PlatformTools";
 import {WebsqlDriver} from "../driver/websql/WebsqlDriver";
-import {MongoDriver} from "../driver/mongodb/MongoDriver";
 
 /**
  * ConnectionManager is used to store and manage all these different connections.
@@ -444,8 +443,6 @@ export class ConnectionManager {
                 return new SqlServerDriver(options, logger);
             case "websql":
                 return new WebsqlDriver(options, logger);
-            case "mongodb":
-                return new MongoDriver(options, logger);
             default:
                 throw new MissingDriverError(options.type);
         }

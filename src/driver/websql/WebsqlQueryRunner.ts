@@ -13,6 +13,7 @@ import {IndexSchema} from "../../schema-builder/schema/IndexSchema";
 import {QueryRunnerAlreadyReleasedError} from "../../query-runner/error/QueryRunnerAlreadyReleasedError";
 import {WebsqlDriver} from "./WebsqlDriver";
 import {ColumnType} from "../../metadata/types/ColumnTypes";
+import { InfoStorage } from '../../info-storage/info-storage';
 
 /**
  * Runs queries on a single websql database connection.
@@ -285,101 +286,7 @@ export class WebsqlQueryRunner implements QueryRunner {
 
         // create table schemas for loaded tables
         return Promise.all(dbTables.map(async dbTable => {
-            const tableSchema = new TableSchema(dbTable["name"]);
-
-            // load columns and indices
-            /*const [dbColumns, dbIndices, dbForeignKeys]: ObjectLiteral[][] = await Promise.all([
-                this.query(`PRAGMA table_info("${dbTable["name"]}")`),
-                this.query(`PRAGMA index_list("${dbTable["name"]}")`),
-                this.query(`PRAGMA foreign_key_list("${dbTable["name"]}")`),
-            ]);
-
-            // find column name with auto increment
-            let autoIncrementColumnName: string|undefined = undefined;
-            const tableSql: string = dbTable["sql"];
-            if (tableSql.indexOf("AUTOINCREMENT") !== -1) {
-                autoIncrementColumnName = tableSql.substr(0, tableSql.indexOf("AUTOINCREMENT"));
-                const comma = autoIncrementColumnName.lastIndexOf(",");
-                const bracket = autoIncrementColumnName.lastIndexOf("(");
-                if (comma !== -1) {
-                    autoIncrementColumnName = autoIncrementColumnName.substr(comma);
-                    autoIncrementColumnName = autoIncrementColumnName.substr(0, autoIncrementColumnName.lastIndexOf("\""));
-                    autoIncrementColumnName = autoIncrementColumnName.substr(autoIncrementColumnName.indexOf("\"") + 1);
-
-                } else if (bracket !== -1) {
-                    autoIncrementColumnName = autoIncrementColumnName.substr(bracket);
-                    autoIncrementColumnName = autoIncrementColumnName.substr(0, autoIncrementColumnName.lastIndexOf("\""));
-                    autoIncrementColumnName = autoIncrementColumnName.substr(autoIncrementColumnName.indexOf("\"") + 1);
-                }
-            }
-
-            // create column schemas from the loaded columns
-            tableSchema.columns = dbColumns.map(dbColumn => {
-                const columnSchema = new ColumnSchema();
-                columnSchema.name = dbColumn["name"];
-                columnSchema.type = dbColumn["type"].toLowerCase();
-                columnSchema.default = dbColumn["dflt_value"] !== null && dbColumn["dflt_value"] !== undefined ? dbColumn["dflt_value"] : undefined;
-                columnSchema.isNullable = dbColumn["notnull"] === 0;
-                columnSchema.isPrimary = dbColumn["pk"] === 1;
-                columnSchema.comment = ""; // todo later
-                columnSchema.isGenerated = autoIncrementColumnName === dbColumn["name"];
-                const columnForeignKeys = dbForeignKeys
-                    .filter(foreignKey => foreignKey["from"] === dbColumn["name"])
-                    .map(foreignKey => {
-                        const keyName = namingStrategy.foreignKeyName(dbTable["name"], [foreignKey["from"]], foreignKey["table"], [foreignKey["to"]]);
-                        return new ForeignKeySchema(keyName, [foreignKey["from"]], [foreignKey["to"]], foreignKey["table"], foreignKey["on_delete"]); // todo: how sqlite return from and to when they are arrays? (multiple column foreign keys)
-                    });
-                tableSchema.addForeignKeys(columnForeignKeys);
-                return columnSchema;
-            });
-
-            // create primary key schema
-            await Promise.all(dbIndices
-                .filter(index => index["origin"] === "pk")
-                .map(async index => {
-                    const indexInfos: ObjectLiteral[] = await this.query(`PRAGMA index_info("${index["name"]}")`);
-                    const indexColumns = indexInfos.map(indexInfo => indexInfo["name"]);
-                    indexColumns.forEach(indexColumn => {
-                        tableSchema.primaryKeys.push(new PrimaryKeySchema(index["name"], indexColumn));
-                    });
-                }));
-
-            // create index schemas from the loaded indices
-            const indicesPromises = dbIndices
-                .filter(dbIndex => {
-                    return  dbIndex["origin"] !== "pk" &&
-                        (!tableSchema.foreignKeys.find(foreignKey => foreignKey.name === dbIndex["name"])) &&
-                        (!tableSchema.primaryKeys.find(primaryKey => primaryKey.name === dbIndex["name"]));
-                })
-                .map(dbIndex => dbIndex["name"])
-                .filter((value, index, self) => self.indexOf(value) === index) // unqiue
-                .map(async dbIndexName => {
-                    const dbIndex = dbIndices.find(dbIndex => dbIndex["name"] === dbIndexName);
-                    const indexInfos: ObjectLiteral[] = await this.query(`PRAGMA index_info("${dbIndex!["name"]}")`);
-                    const indexColumns = indexInfos.map(indexInfo => indexInfo["name"]);
-
-                    // check if db index is generated by sqlite itself and has special use case
-                    if (dbIndex!["name"].substr(0, "sqlite_autoindex".length) === "sqlite_autoindex") {
-                        if (dbIndex!["unique"] === 1) { // this means we have a special index generated for a column
-                            // so we find and update the column
-                            indexColumns.forEach(columnName => {
-                                const column = tableSchema.columns.find(column => column.name === columnName);
-                                if (column)
-                                    column.isUnique = true;
-                            });
-                        }
-
-                        return Promise.resolve(undefined);
-
-                    } else {
-                        return new IndexSchema(dbTable["name"], dbIndex!["name"], indexColumns, dbIndex!["unique"] === "1");
-                    }
-                });
-
-            const indices = await Promise.all(indicesPromises);
-            tableSchema.indices = indices.filter(index => !!index) as IndexSchema[];*/
-
-            return tableSchema;
+            return InfoStorage.get(dbTable["name"]);
         }));
     }
 
@@ -407,6 +314,7 @@ export class WebsqlQueryRunner implements QueryRunner {
             sql += `, PRIMARY KEY(${primaryKeyColumns.map(column => `${column.name}`).join(", ")})`; // for some reason column escaping here generates a wrong schema
         sql += `)`;
         await this.query(sql);
+        InfoStorage.put(table);
     }
 
     /**

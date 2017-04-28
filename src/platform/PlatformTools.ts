@@ -1,5 +1,4 @@
 import * as path from "path";
-import * as fs from "fs";
 
 /**
  * Platform-specific tools.
@@ -65,7 +64,7 @@ export class PlatformTools {
      * Synchronously checks if file exist. Does "fs.existsSync".
      */
     static fileExist(pathStr: string): boolean {
-        return fs.existsSync(pathStr);
+        return false;
     }
 
     /**

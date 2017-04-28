@@ -46,80 +46,6 @@ export class Gulpfile {
     }
 
     // -------------------------------------------------------------------------
-    // Build and packaging for browser
-    // -------------------------------------------------------------------------
-
-    /**
-     * Copies all source files into destination folder in a correct structure.
-     */
-    @Task()
-    browserCopySources() {
-        return gulp.src([
-            "./src/**/*.ts",
-            "!./src/commands/*.ts",
-            "!./src/cli.ts",
-            "!./src/typeorm.ts",
-            "!./src/typeorm-model-shim.ts",
-            "!./src/platform/PlatformTools.ts"
-        ])
-            .pipe(gulp.dest("./build/browser/typeorm"));
-    }
-
-    /**
-     * Creates special main file for browser build.
-     */
-    @Task()
-    browserCopyMainBrowserFile() {
-        return gulp.src("./package.json", { read: false })
-            .pipe(file("typeorm.ts", `export * from "./typeorm/index";`))
-            .pipe(gulp.dest("./build/browser"));
-    }
-
-    /**
-     * Replaces PlatformTools with browser-specific implementation called BrowserPlatformTools.
-     */
-    @Task()
-    browserCopyPlatformTools() {
-        return gulp.src("./src/platform/BrowserPlatformTools.template")
-            .pipe(rename("PlatformTools.ts"))
-            .pipe(gulp.dest("./build/browser/typeorm/platform"));
-    }
-
-    /**
-     * Runs files compilation of browser-specific source code.
-     */
-    @MergedTask()
-    browserCompile() {
-        const tsProject = ts.createProject("tsconfig.json", {
-            outFile: "typeorm-browser.js",
-            module: "system",
-            "lib": ["es5", "es6", "dom"],
-            typescript: require("typescript")
-        });
-        const tsResult = gulp.src(["./build/browser/**/*.ts", "./node_modules/@types/**/*.ts"])
-            .pipe(sourcemaps.init())
-            .pipe(tsProject());
-
-        return [
-            // tsResult.dts.pipe(gulp.dest("./build/package")),
-            tsResult.js
-                .pipe(sourcemaps.write(".", { sourceRoot: "", includeContent: true }))
-                .pipe(gulp.dest("./build/package"))
-        ];
-    }
-
-    /**
-     * Uglifys all code.
-     */
-    @Task()
-    browserUglify() {
-        return gulp.src("./build/package/typeorm-browser.js")
-            .pipe(uglify())
-            .pipe(rename("typeorm-browser.min.js"))
-            .pipe(gulp.dest("./build/package"));
-    }
-
-    // -------------------------------------------------------------------------
     // Main Packaging and Publishing tasks
     // -------------------------------------------------------------------------
 
@@ -130,7 +56,7 @@ export class Gulpfile {
     packagePublish() {
         return gulp.src("package.json", { read: false })
             .pipe(shell([
-                "cd ./build/package && npm publish"
+                "cd ./build/package && npm publish --registry https://registry.npmjs.org/"
             ]));
     }
 
@@ -229,9 +155,8 @@ export class Gulpfile {
     package() {
         return [
             "clean",
-            ["browserCopySources", "browserCopyMainBrowserFile", "browserCopyPlatformTools"],
-            ["packageCompile", "browserCompile"],
-            ["packageMoveCompiledFiles", "browserUglify"],
+            ["packageCompile"],
+            ["packageMoveCompiledFiles"],
             [
                 "packageClearPackageDirectory",
                 "packageReplaceReferences",

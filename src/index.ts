@@ -11,7 +11,6 @@ import {Repository} from "./repository/Repository";
 import {EntityManager} from "./entity-manager/EntityManager";
 import {PlatformTools} from "./platform/PlatformTools";
 import {TreeRepository} from "./repository/TreeRepository";
-import {MongoRepository} from "./repository/MongoRepository";
 
 // -----------------------------------------------------------------   --------
 // Commonly Used exports
@@ -83,14 +82,12 @@ export {Driver} from "./driver/Driver";
 export {QueryBuilder} from "./query-builder/QueryBuilder";
 export {QueryRunner} from "./query-runner/QueryRunner";
 export {EntityManager} from "./entity-manager/EntityManager";
-export {MongoEntityManager} from "./entity-manager/MongoEntityManager";
 export {MigrationInterface} from "./migration/MigrationInterface";
 export {DefaultNamingStrategy} from "./naming-strategy/DefaultNamingStrategy";
 export {NamingStrategyInterface} from "./naming-strategy/NamingStrategyInterface";
 export {Repository} from "./repository/Repository";
 export {TreeRepository} from "./repository/TreeRepository";
 export {SpecificRepository} from "./repository/SpecificRepository";
-export {MongoRepository} from "./repository/MongoRepository";
 export {FindManyOptions} from "./find-options/FindManyOptions";
 export {InsertEvent} from "./subscriber/event/InsertEvent";
 export {UpdateEvent} from "./subscriber/event/UpdateEvent";
@@ -284,21 +281,4 @@ export function getTreeRepository<Entity>(entityName: string, connectionName?: s
  */
 export function getTreeRepository<Entity>(entityClassOrName: ObjectType<Entity>|string, connectionName: string = "default"): TreeRepository<Entity> {
     return getConnectionManager().get(connectionName).getTreeRepository<Entity>(entityClassOrName as any);
-}
-
-/**
- * Gets mongodb repository for the given entity class.
- */
-export function getMongoRepository<Entity>(entityClass: ObjectType<Entity>, connectionName?: string): MongoRepository<Entity>;
-
-/**
- * Gets mongodb repository for the given entity name.
- */
-export function getMongoRepository<Entity>(entityName: string, connectionName?: string): MongoRepository<Entity>;
-
-/**
- * Gets mongodb repository for the given entity class or name.
- */
-export function getMongoRepository<Entity>(entityClassOrName: ObjectType<Entity>|string, connectionName: string = "default"): MongoRepository<Entity> {
-    return getConnectionManager().get(connectionName).getMongoRepository<Entity>(entityClassOrName as any);
 }

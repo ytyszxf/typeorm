@@ -1,6 +1,5 @@
 import {EntityMetadata} from "../../metadata/EntityMetadata";
 import {Driver} from "../../driver/Driver";
-import {MongoDriver} from "../../driver/mongodb/MongoDriver";
 import {ObjectLiteral} from "../../common/ObjectLiteral";
 import {EmbeddedMetadata} from "../../metadata/EmbeddedMetadata";
 

@@ -805,7 +805,7 @@ export class WebsqlQueryRunner implements QueryRunner {
         await this.query(sql2);
 
         // drop old table
-        const sql3 = `DROP TABLE "${tableSchema.name}"`;
+        const sql3 = `DROP TABLE IF EXISTS "${tableSchema.name}"`;
         await this.query(sql3);
 
         // rename temporary table
@@ -816,6 +816,7 @@ export class WebsqlQueryRunner implements QueryRunner {
         const indexPromises = tableSchema.indices.map(index => this.createIndex(tableSchema.name, index));
         // const uniquePromises = tableSchema.uniqueKeys.map(key => this.createIndex(key));
         await Promise.all(indexPromises/*.concat(uniquePromises)*/);
+        InfoStorage.put(tableSchema);
     }
 
     /**

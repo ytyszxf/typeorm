@@ -88,7 +88,7 @@ export class ColumnMetadata {
     /**
      * Indicates if column can contain nulls or not.
      */
-    readonly isNullable: boolean = false;
+    readonly isNullable: boolean = true;
 
     /**
      * Column comment.
@@ -166,8 +166,8 @@ export class ColumnMetadata {
             this.isGenerated = args.options.generated;
         if (args.options.unique)
             this.isUnique = args.options.unique;
-        if (args.options.nullable)
-            this.isNullable = args.options.nullable;
+        if (args.options.hasOwnProperty("nullable"))
+            this.isNullable = !!args.options.nullable;
         if (args.options.comment)
             this.comment = args.options.comment;
         if (args.options.default !== undefined && args.options.default !== null)

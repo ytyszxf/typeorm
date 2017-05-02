@@ -27,7 +27,7 @@ export class ColumnSchema {
     /**
      * Indicates if column is NULL, or is NOT NULL in the database.
      */
-    isNullable: boolean = false;
+    isNullable: boolean = true;
 
     /**
      * Indicates if column is auto-generated sequence.
@@ -67,7 +67,8 @@ export class ColumnSchema {
             this.name = options.name || "";
             this.type = options.type || "";
             this.default = options.default;
-            this.isNullable = options.isNullable || false;
+            this.isNullable = (options.hasOwnProperty("isNullable")
+                ? options.isNullable : true) as boolean;
             this.isGenerated = options.isGenerated || false;
             this.isPrimary = options.isPrimary || false;
             this.isUnique = options.isUnique || false;

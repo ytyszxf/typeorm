@@ -628,6 +628,9 @@ export class WebsqlQueryRunner implements QueryRunner {
 
         const columnNames = index.columnNames.map(columnName => `"${columnName}"`).join(",");
         const sql = `CREATE ${index.isUnique ? "UNIQUE " : ""}INDEX "${index.name}" ON "${tableName}"(${columnNames})`;
+        let tableSchema = InfoStorage.get(tableName);
+        tableSchema.indices.push(index);
+        InfoStorage.put(tableSchema);
         await this.query(sql);
     }
 
@@ -639,6 +642,10 @@ export class WebsqlQueryRunner implements QueryRunner {
             throw new QueryRunnerAlreadyReleasedError();
 
         const sql = `DROP INDEX "${indexName}"`;
+        let tableSchema = InfoStorage.get(tableName);
+        tableSchema.indices = tableSchema.indices
+            .filter((indice) => indice.name !== indexName);
+        InfoStorage.put(tableSchema);
         await this.query(sql);
     }
 

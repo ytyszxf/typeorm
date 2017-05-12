@@ -222,6 +222,7 @@ export class WebsqlDriver implements Driver {
                 return DataTransformationUtils.mixedTimeToString(value);
 
             case ColumnTypes.JSON:
+                if (!value) { return null; }
                 return JSON.parse(value);
 
             case ColumnTypes.SIMPLE_ARRAY:

@@ -1,15 +1,15 @@
-import {RelationOptions} from "../options/RelationOptions";
 import {RelationTypes} from "../../metadata/types/RelationTypes";
 import {getMetadataArgsStorage} from "../../index";
 import {ObjectType} from "../../common/ObjectType";
 import {RelationMetadataArgs} from "../../metadata-args/RelationMetadataArgs";
+import { RelationOptions } from '../../../build/package/decorator/options/RelationOptions';
 
 /**
  * Many-to-many is a type of relationship when Entity1 can have multiple instances of Entity2, and Entity2 can have
  * multiple instances of Entity1. To achieve it, this type of relation creates a junction table, where it storage
  * entity1 and entity2 ids. This is owner side of the relationship.
  */
-export function ManyToMany<T>(typeFunction: (type?: any) => ObjectType<T>, options?: { cascadeInsert?: boolean, cascadeUpdate?: boolean, lazy?: boolean }): Function;
+export function ManyToMany<T>(typeFunction: (type?: any) => ObjectType<T>, options?: RelationOptions): Function;
 
 /**
  * Many-to-many is a type of relationship when Entity1 can have multiple instances of Entity2, and Entity2 can have
@@ -18,7 +18,7 @@ export function ManyToMany<T>(typeFunction: (type?: any) => ObjectType<T>, optio
  */
 export function ManyToMany<T>(typeFunction: (type?: any) => ObjectType<T>,
                               inverseSide?: string|((object: T) => any),
-                              options?: { cascadeInsert?: boolean, cascadeUpdate?: boolean, lazy?: boolean }): Function;
+                              options?: RelationOptions): Function;
 
 /**
  * Many-to-many is a type of relationship when Entity1 can have multiple instances of Entity2, and Entity2 can have
@@ -26,8 +26,8 @@ export function ManyToMany<T>(typeFunction: (type?: any) => ObjectType<T>,
  * entity1 and entity2 ids. This is owner side of the relationship.
  */
 export function ManyToMany<T>(typeFunction: (type?: any) => ObjectType<T>,
-                              inverseSideOrOptions?: string|((object: T) => any)|{ cascadeInsert?: boolean, cascadeUpdate?: boolean, lazy?: boolean },
-                              options?: { cascadeInsert?: boolean, cascadeUpdate?: boolean, lazy?: boolean }): Function {
+                              inverseSideOrOptions?: string|((object: T) => any)|RelationOptions,
+                              options?: RelationOptions): Function {
     let inverseSideProperty: string|((object: T) => any);
     if (typeof inverseSideOrOptions === "object") {
         options = <RelationOptions> inverseSideOrOptions;

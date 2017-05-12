@@ -131,6 +131,7 @@ export class InfoStorage {
     };
 
     localStorage.setItem(`${STORAGE_SUFFIX}.table:${schema.name}`, JSON.stringify(tableSchemaData));
+    InfoStorage.addTable(schema.name);
   }
 
   public static get(tableName: string) {
@@ -159,5 +160,29 @@ export class InfoStorage {
     tableSchema.indices = indices;
 
     return tableSchema;
+  }
+
+  public static addTable(tableName: string) {
+    let tableList = InfoStorage.getTablelist();
+    if (tableList.indexOf(tableName) > -1) { return; }
+    tableList.push(tableName);
+
+    localStorage.setItem(`${STORAGE_SUFFIX}.tableList`, JSON.stringify(tableList));
+  }
+
+  public static removeTable(tableName: string) {
+    let tableList = InfoStorage.getTablelist();
+    tableList = tableList.filter((name: string) => name !== tableName);
+
+    localStorage.setItem(`${STORAGE_SUFFIX}.tableList`, JSON.stringify(tableList));
+  }
+
+  public static getTablelist(): string[] {
+    let tableList = localStorage.getItem(`${STORAGE_SUFFIX}.tableList`);
+    return tableList ? JSON.parse(tableList) : [];
+  }
+
+  public static clearTableList() {
+    localStorage.removeItem(`${STORAGE_SUFFIX}.tableList`);
   }
 }

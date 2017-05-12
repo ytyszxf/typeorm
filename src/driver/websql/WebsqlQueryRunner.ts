@@ -67,15 +67,16 @@ export class WebsqlQueryRunner implements QueryRunner {
         // await this.query(`PRAGMA foreign_keys = OFF;`);
         await this.beginTransaction();
         try {
-            const selectDropsQuery = `select 'drop table ' || name || ';' as query from sqlite_master where type = 'table' and name != 'sqlite_sequence'`;
-            const dropQueries: ObjectLiteral[] = await this.query(selectDropsQuery);
+            const tableNames = InfoStorage.getTablelist();
+            const indexs = tableNames.map((name, index) => `$${index + 1}`).join(",");
+            const selectDropsQuery = `select 'drop table ' || name || ';' as query from sqlite_master where type = 'table' and name in (${indexs})`;
+            const dropQueries: ObjectLiteral[] = await this.query(selectDropsQuery, tableNames);
             await Promise.all(dropQueries.map(q => this.query(q["query"])));
             await this.commitTransaction();
-
+            InfoStorage.clearTableList();
         } catch (error) {
             await this.rollbackTransaction();
             throw error;
-
         } finally {
             await this.release();
             // await this.query(`PRAGMA foreign_keys = ON;`);

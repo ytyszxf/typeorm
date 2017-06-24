@@ -276,18 +276,21 @@ export class WebsqlQueryRunner implements QueryRunner {
         if (!tableNames || !tableNames.length)
             return [];
 
-        const tableNamesString = tableNames.map(tableName => `'${tableName}'`).join(", ");
+        // const tableNamesString = tableNames.map(tableName => `'${tableName}'`).join(", ");
 
         // load tables, columns, indices and foreign keys
-        const dbTables: ObjectLiteral[] = await this.query(`SELECT * FROM sqlite_master WHERE type = 'table' AND name IN (${tableNamesString})`);
+        // const dbTables: ObjectLiteral[] = await this.query(`SELECT * FROM sqlite_master WHERE type = 'table' AND name IN (${tableNamesString})`);
 
         // if tables were not found in the db, no need to proceed
-        if (!dbTables || !dbTables.length)
-            return [];
+        // if (!dbTables || !dbTables.length)
+        //     return [];
 
         // create table schemas for loaded tables
-        return Promise.all(dbTables.map(async dbTable => {
-            return InfoStorage.get(dbTable["name"]);
+        // return Promise.all(dbTables.map(async dbTable => {
+        //     return InfoStorage.get(dbTable["name"]);
+        // }));
+        return Promise.all(tableNames.map(async (tableName) => {
+            return InfoStorage.get(tableName);
         }));
     }
 
